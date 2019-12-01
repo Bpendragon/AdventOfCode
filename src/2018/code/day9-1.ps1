@@ -1,0 +1,72 @@
+Class LinkedListNode {
+    [int]$val
+    [LinkedListNode]$next
+    [LinkedListNode]$previous
+    LinkedListNode([int] $val) {
+        $this.val = $val
+    }
+
+}
+
+Class CircularLinkedList {
+    [LinkedListNode]$Head  #a convention so we can find our way around starting at 0
+    [int] $Count
+
+
+    CircularLinkedList([int]$start) {
+        $this.Head = [LinkedListNode]::new($start)
+        $this.Head.next = $this.Head
+        $this.Head.previous = $this.Head
+        $this.count = 1
+    }
+
+    InsertAfter([LinkedListNode]$node, [int]$val) {
+        $newNode = [LinkedListNode]::new($val) 
+        $tmp = $node.next
+        $node.next = $newNode
+        $newNode.previous = $node
+        $newNode.next = $tmp
+        $tmp.previous = $newNode
+        $this.count++
+    }
+
+    Delete([LinkedListNode]$node) {
+        $prev = $node.previous
+        $nex = $node.next
+
+        $prev.next = $nex
+        $nex.previous = $prev
+        $this.Count--
+    }
+}
+
+$numplayers = 411
+$finalMarble = 71058
+
+
+
+$timer = New-Object System.Diagnostics.Stopwatch
+$timer.Start()
+
+$circle = [CircularLinkedList]::new(0)
+$playerScores = New-Object 'int[]' $numPlayers
+
+$cur = $circle.Head
+$curPlayer = 0
+foreach($i in (1..$finalMarble)) {
+    if(($i % 23) -eq 0) {
+        $playerScores[$curPlayer % $numplayers] += $i
+        $playerScores[$curPlayer % $numplayers] += $cur.previous.previous.previous.previous.previous.previous.previous.val
+        $cur = $cur.previous.previous.previous.previous.previous.previous
+        $circle.Delete($cur.previous)
+    } else {
+        $circle.InsertAfter($cur.next, $i)
+        $cur = $cur.next.next
+    }
+    $curplayer++
+}
+
+$max = $playerScores | Measure -Maximum
+Write-host $max.Maximum
+$timer.Stop()
+Write-Host $timer.Elapsed
