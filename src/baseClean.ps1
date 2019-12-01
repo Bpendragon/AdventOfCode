@@ -1,29 +1,35 @@
 param (
-    [bool]$CreateBoth = $false
+    [bool]$CreateBoth = $false,
+    [int]$Year = 0,
+    [int]$Day = 0
 )
+$now = [DateTime]::UtcNow #If it's midnight in London, it's midnight on the US East Coast
+if($Year -lt 2015 -or $Day -lt 1 -or $Day -gt 25) #Basic params. if out of spec just get the most recent
+{
+     $Year = $now.Year
+     $Day = $now.Day
+}
 
-$Year = 2019 #edit this yearly
-$Day = 1 #EDIT THIS DAILY
-$Invocation = (Get-Variable MyInvocation).Value
-$Directorypath = Split-Path $Invocation.MyCommand.Path
-$Inputpath = Join-Path $Directorypath -ChildPath "$Year\input\day$("{0:00}" -f $Day).txt" #Pads a leading 0 if needed
+$config = Get-Content (Join-Path $PSScriptRoot -ChildPath "config.json") | ConvertFrom-Json
+
+$Inputpath = Join-Path $PSScriptRoot -ChildPath "$Year\input\day$("{0:00}" -f $Day).txt" 
 $InputURI = "https://adventofcode.com/$Year/day/$Day/input"
-$CodePath1 = Join-Path $DirectoryPath -ChildPath "$Year\code\day$("{0:00}" -f $Day).ps1"
-$CodePath2 = Join-Path $DirectoryPath -ChildPath "$Year\code\day$("{0:00}" -f $Day)-2.ps1"
+$CodePath1 = Join-Path $PSScriptRoot -ChildPath "$Year\code\day$("{0:00}" -f $Day).ps1" #Pads a leading 0 if needed
+$CodePath2 = Join-Path $PSScriptRoot -ChildPath "$Year\code\day$("{0:00}" -f $Day)-2.ps1"
 
 if (!(Test-Path $InputPath)) {
     $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
     $cookie = New-Object System.Net.Cookie
     $cookie.Name = "session"
-    $cookie.Value = "YOUR COOKIE HERE" #Edit this as needed.
+    $cookie.Value = $config.cookie #Edit this as needed.
     $cookie.Domain = "adventofcode.com"
     $session.Cookies.Add($cookie);
     Invoke-WebRequest -Uri $InputURI -WebSession $session -TimeoutSec 900 -Method Get -OutFile $inputPath    
 }
 
+#Repeating the JoinPath here so as not to expose file structure to the world in the rest of the repo
 $BasicLayout = @"
-`$inputPath = $InputPath
-`$data = Get-Content `"`$inputPath`"
+`$data = Get-Content (Join-Path `$PSScriptRoot -ChildPath "$Year\input\day$("{0:00}" -f $Day).txt")
 
 `$timer = New-Object System.Diagnostics.Stopwatch
 `$timer.Start()
