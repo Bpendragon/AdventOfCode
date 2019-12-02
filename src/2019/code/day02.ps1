@@ -33,7 +33,7 @@ function Invoke-Program
 $timer = New-Object System.Diagnostics.Stopwatch
 $timer.Start()
 
-$ram = $Cleanram #Non-value types are always passed by reference, so lets just create a copy to work on
+$ram = $Cleanram.Clone() #Non-value types are always passed by reference, so lets just create a copy to work on
 $part1 = Invoke-Program -ram $ram -noun 12 -verb 2
 
 Write-Host "Part 1: $part1"
@@ -42,7 +42,7 @@ $noun = 0
 $verb = 0
 :base for($noun = 0; $noun -le 99; $noun++) {
     for ($verb = 0; $verb -le 99; $verb++) {
-        $ram = $Cleanram
+        $ram = $Cleanram.Clone()
         $res = Invoke-Program -ram $ram -noun $noun -verb $verb
         if ($res -eq 19690720) 
         {
