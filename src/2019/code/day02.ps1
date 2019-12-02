@@ -1,5 +1,5 @@
 $data = Get-Content (Join-Path $PSScriptRoot -ChildPath "..\input\day02.txt")
-[long[]]$Cleanram = $data.Split(',')
+[long[]]$baseRAM = $data.Split(',')
 
 
 function Invoke-Program
@@ -12,19 +12,18 @@ function Invoke-Program
     )
 
     $pc = 0
-    $op = $ram[$pc]
     $ram[1] = $noun
     $ram[2] = $verb
 
-    while ($op -ne 99) {
-        if ($op -eq 1) {
-            $ram[$ram[$pc + 3]] = $ram[$ram[$pc + 1]] + $ram[$ram[$pc + 2]]
+    while ($true) {
+        $op,$src1,$src2,$res = $ram[$pc..($pc+3)]
+        switch($op){
+            1 { $ram[$res] = $ram[$src1] + $ram[$src2]; $pc += 4; break } #Leave the increment as part of the control on the code in case jumps and gotos are added
+            2 { $ram[$res] = $ram[$src1] * $ram[$src2]; $pc += 4; break }
+            99 { return $ram[0] }
+            Default { throw "Not a real OpCode" }
         } 
-        else {
-            $ram[$ram[$pc + 3]] = $ram[$ram[$pc + 1]] * $ram[$ram[$pc + 2]]
-        }
-        $pc += 4
-        $op = $ram[$pc]
+        
     }
 
     return $ram[0]
@@ -33,20 +32,23 @@ function Invoke-Program
 $timer = New-Object System.Diagnostics.Stopwatch
 $timer.Start()
 
-$ram = $Cleanram.Clone() #Non-value types are always passed by reference, so lets just create a copy to work on
+$ram = $baseRAM.Clone()
+
 $part1 = Invoke-Program -ram $ram -noun 12 -verb 2
 
 Write-Host "Part 1: $part1"
+Write-Host $timer.Elapsed
+$timer.Restart()
 
 $noun = 0
 $verb = 0
 :base for($noun = 0; $noun -le 99; $noun++) {
     for ($verb = 0; $verb -le 99; $verb++) {
-        $ram = $Cleanram.Clone()
+        $ram = $baseRam.Clone()
         $res = Invoke-Program -ram $ram -noun $noun -verb $verb
         if ($res -eq 19690720) 
         {
-            break base  #all the way out of both loop please
+            break base  #all the way out of both loops please
         }
     }
 }
