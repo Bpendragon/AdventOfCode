@@ -17,9 +17,6 @@ if($Year -lt 2015 -or $Day -lt 1 -or $Day -gt 25 -or $Year -gt $now.Year -or ($Y
      }
 }
 
-
-
-
 $config = Get-Content (Join-Path $PSScriptRoot -ChildPath "config.json") | ConvertFrom-Json
 
 $Inputpath = Join-Path $PSScriptRoot -ChildPath "$Year\input\day$("{0:00}" -f $Day).txt" 
@@ -29,12 +26,12 @@ $CodePath2 = Join-Path $PSScriptRoot -ChildPath "$Year\code\day$("{0:00}" -f $Da
 
 if(!(Test-Path (Join-Path $PSScriptRoot -ChildPath "$Year\input"))) 
 {
-    mkdir (Join-Path $PSScriptRoot -ChildPath "$Year\input")
+    mkdir (Join-Path $PSScriptRoot -ChildPath "$Year\input") | Out-Null
 }
 
 if(!(Test-Path (Join-Path $PSScriptRoot -ChildPath "$Year\code")))
 {
-    mkdir (Join-Path $PSScriptRoot -ChildPath "$Year\code")
+    mkdir (Join-Path $PSScriptRoot -ChildPath "$Year\code") | Out-Null
 }
 
 if (!(Test-Path $InputPath)) {
@@ -61,9 +58,9 @@ Write-Host `$timer.Elapsed
 "@
 
 if(!(Test-Path $CodePath1)) {
-    New-Item $CodePath1 -ItemType "file" -Value $basiclayout -Force
+    New-Item $CodePath1 -ItemType "file" -Value $basiclayout -Force | Out-Null
 }
 
 if(!(Test-Path $CodePath2) -and $CreateBoth) {
-    New-Item $CodePath2 -ItemType "file" -Value $basiclayout -Force
+    New-Item $CodePath2 -ItemType "file" -Value $basiclayout -Force | Out-Null
 }
