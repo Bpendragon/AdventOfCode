@@ -3,6 +3,7 @@ param (
     [int]$Year = 0,
     [int]$Day = 0
 )
+
 $now = [DateTime]::UtcNow.AddHours(-5) #EST is UTC -5, this makes it universal for all users. 
 
 if($Year -lt 2015 -or $Day -lt 1 -or $Day -gt 25 -or $Year -gt $now.Year -or ($Year -eq $now.Year -and $Day -gt $now.Day)) #Basic params. if out of spec just get the most recent
