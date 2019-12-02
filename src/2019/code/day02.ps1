@@ -5,7 +5,7 @@ $timer.Start()
 
 
 [long[]]$Cleanram = $data.Split(',')
-$ram = $Cleanram
+$ram = $Cleanram.Clone()
 $pc = 0
 $op = $ram[$pc]
 $ram[1] = 12
@@ -22,14 +22,14 @@ while ($op -ne 99) {
     $op = $ram[$pc]
 }
 
-Write-Host "Part 1 $($ram[0])"
+Write-Host "Part 1: $($ram[0])"
 
 $noun = 0
 $verb = 0
 :base for($noun = 0; $noun -le 99; $noun++) {
     for ($verb = 0; $verb -le 99; $verb++) {
 
-        $ram = $Cleanram
+        $ram = $Cleanram.Clone()
         $pc = 0
         $op = $ram[$pc]
         $ram[1] = $noun
@@ -53,6 +53,6 @@ $verb = 0
     }
 }
 
-Write-Host "Part 2 $(100 * $ram[1] + $ram[2])"
+Write-Host "Part 2: $(100 * $ram[1] + $ram[2])"
 $timer.Stop()
 Write-Host $timer.Elapsed
