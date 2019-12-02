@@ -5,7 +5,7 @@ https://adventofcode.com
 
 You can use `src\dailySetup.ps1` to pull your inputs and automatically create solution file(s) simply pass in the year and day (or don't and get the most recent puzzle input), and get your session cookie as described here: https://github.com/wimglenn/advent-of-code-wim/issues/1
 
-#Requirements
+## Requirements
 
 Powershell v3 or higher (for `$PSScriptRoot` to behave normally), if you're running Windows 8 or later, you should be good, you can check by opening a Powershell CLI and typing `$PSVersionTable` followed by Enter
 
@@ -29,7 +29,7 @@ Windows 7 users can upgrade their Powershell to V3 or higher using [these instru
 Windows, Linux, macOS, and ARM Processor users can install PowerShell Core (also called Powershell v6) here: https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-6
 
 
-#Setup
+## Setup
 
 To set this repo up to handle your input rename `/src/exampleconfig.json` to `config.json` and add your cookie (retrieved following steps in above link).
 
