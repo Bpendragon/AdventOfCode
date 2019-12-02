@@ -1,5 +1,4 @@
-$inputPath = ""
-$data = Get-Content $inputPath
+$data = Get-Content (Join-Path $PSScriptRoot -ChildPath "..\input\day01.txt")
 
 $timer = New-Object System.Diagnostics.Stopwatch
 $timer.Start()
