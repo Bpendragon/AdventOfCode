@@ -11,24 +11,23 @@ function Get-Points {
 
     $x = 0 
     $y = 0
-    $points = @{@(0, 0) = 0 }
+    $points = @{}
     $DX = @{'L' = -1; 'R' = 1; 'U' = 0; 'D' = 0 }
     $DY = @{'L' = 0; 'R' = 0; 'U' = 1; 'D' = -1 }
+    $length = 0
 
     foreach ($dir in $path) {
-        $dist = [int](-join $dir[1..($dir.Length - 1)] )
+        $dist = [int](-join $dir[1..($dir.Length)] )
         [string]$direction = $dir[0]
-        foreach ($i in (0..$dist)) {
+        foreach ($i in (1..$dist)) {
             $x += $DX[$direction]
             $y += $DY[$direction]
             $length++
-
-            if (!$points.ContainsKey(@($x, $y))) {
-                $points[@($x, $y)] = $length
+            $nextPoint = "$x,$y"
+            if (!$points.ContainsKey($nextPoint)) {
+                $points[$nextPoint] = $length
             }
-
-        }
-        
+        }    
     }
 
     return $points
@@ -40,16 +39,22 @@ function Get-Points {
 $points1 = Get-Points $path1
 $points2 = Get-Points $path2
 
-$ints = $points1.Keys | Where-Object { $points2.Keys -contains $_}  
+$ints = $points1.Keys | Where-Object { $points2.ContainsKey($_) -and $_ -ne "0,0"}  
 
 $sums = @()
 
 foreach($i in $ints)
 {
-    $sums+= $i[0]+ $i[1]
+    $h = $i -split ','
+    $sums+= [Math]::Abs([int]$h[0]) + [Math]::Abs([int]$h[1])
 }
 
-write-host $($sums | measure -Minimum).Minimum
+$intWalks = $ints | % {$points1[$_] + $points2[$_]}
+
+$minToCenter = ($sums | Measure-Object -Minimum).Minimum
+$minWalkDistance = ($intWalks | Measure-Object -Minimum).Minimum
+Write-Host "Part 1: $minToCenter"
+Write-Host "Part 2: $minWalkDistance"
 
 $timer.Stop()
 Write-Host $timer.Elapsed
