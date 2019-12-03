@@ -1,12 +1,13 @@
 param (
-    [bool]$CreateBoth = $false,
     [int]$Year = 0,
-    [int]$Day = 0
+    [int]$Day = 0,
+    [switch]$CreateBoth,
+    [switch]$noDownload
 )
 
 $now = [DateTime]::UtcNow.AddHours(-5) #EST is UTC -5, this makes it universal for all users. 
 
-if($Year -lt 2015 -or $Day -lt 1 -or $Day -gt 25 -or $Year -gt $now.Year -or ($Year -eq $now.Year -and $Day -gt $now.Day)) #Basic params. if out of spec just get the most recent
+if(($Year -lt 2015 -or $Day -lt 1 -or $Day -gt 25 -or $Year -gt $now.Year -or ($Year -eq $now.Year -and $Day -gt $now.Day)) -and !($noDownload.IsPresent)) #Basic params. if out of spec just get the most recent
 {
      $Year = $now.Year
      $Day = $now.Day
@@ -34,7 +35,7 @@ if(!(Test-Path (Join-Path $PSScriptRoot -ChildPath "$Year\code")))
     mkdir (Join-Path $PSScriptRoot -ChildPath "$Year\code") | Out-Null
 }
 
-if (!(Test-Path $InputPath)) {
+if (!(Test-Path $InputPath) -and !($noDownload.IsPresent)) {
     $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
     $cookie = New-Object System.Net.Cookie
     $cookie.Name = "session"
