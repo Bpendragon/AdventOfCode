@@ -19,8 +19,7 @@ function Invoke-Program {
         [string]$modes = "{0:000}" -f [Math]::Floor($ram[$pc] / 100)  #pads leading zeroes to three units
 
         switch ($op) {
-            1 {
-                #add two and store
+            1 { #add
                 $src1, $src2, $out = $ram[($pc + 1)..($pc + 3)]
                 if ($modes[-1] -eq '0') {
                     $src1 = $ram[$src1]
@@ -33,8 +32,7 @@ function Invoke-Program {
                 $pc += 4
                 break
             } 
-            2 {
-                #mult two and store  
+            2 { #multiply
                 $src1, $src2, $out = $ram[($pc + 1)..($pc + 3)]
                 if ($modes[-1] -eq '0') {
                     $src1 = $ram[$src1]
@@ -47,14 +45,12 @@ function Invoke-Program {
                 $pc += 4
                 break 
             } 
-            3 {
-                #take input and write to disk
+            3 { #take input and write to disk
                 $ram[$ram[$pc + 1]] = $module
                 $pc += 2
                 break
             } 
-            4 {
-                #out to screen
+            4 {#output
                 if ($modes[-1] -eq '0') {
                     
                     Write-Host $ram[$ram[$pc + 1]]
@@ -66,7 +62,7 @@ function Invoke-Program {
                 $pc += 2
                 break
             } 
-            5 {
+            5 { #jump-true
                 $tst, $dst = $ram[($pc + 1)..($pc + 2)]
                 if ($modes[-1] -eq '0') {
                     $tst = $ram[$tst]
@@ -83,7 +79,7 @@ function Invoke-Program {
                 $pc = $dst
                 break
             }
-            6 {
+            6 { #jump-false
                 $tst, $dst = $ram[($pc + 1)..($pc + 2)]
                 if ($modes[-1] -eq '0') {
                     $tst = $ram[$tst]
@@ -100,7 +96,7 @@ function Invoke-Program {
                 $pc = $dst
                 break
             }
-            7 {
+            7 { #less than
                 $src1, $src2, $out = $ram[($pc + 1)..($pc + 3)]
                 if ($modes[-1] -eq '0') {
                     $src1 = $ram[$src1]
@@ -117,7 +113,7 @@ function Invoke-Program {
                 $pc += 4
                 break  
             }
-            8 {
+            8 { #equality
                 $src1, $src2, $out = $ram[($pc + 1)..($pc + 3)]
                 if ($modes[-1] -eq '0') {
                     $src1 = $ram[$src1]
@@ -142,7 +138,7 @@ function Invoke-Program {
 }
 
 [long[]]$baseRam = $data.Split(',') 
-Write-Host "Part1: "
+Write-Host "Part 1: "
 [long[]]$cleanRam = $baseRam.Clone()
 $testInput = 1
 Invoke-Program -ram $cleanRam  -module $testInput
@@ -153,4 +149,5 @@ $testInput = 5
 Invoke-Program -ram $cleanRam -module $testInput
 
 $timer.Stop()
+Write-Host "Runtime:"
 Write-Host $timer.Elapsed

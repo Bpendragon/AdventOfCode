@@ -54,7 +54,10 @@ $BasicLayout = @"
 
 #CODE GOES HERE
 
+Write-Host "Part 1: "
+Write-Host "Part 2: "
 `$timer.Stop()
+Write-Host "Runtime:"
 Write-Host `$timer.Elapsed
 "@
 
