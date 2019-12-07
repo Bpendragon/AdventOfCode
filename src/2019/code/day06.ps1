@@ -7,8 +7,7 @@ class Orbit
 {
     [string]$Name
     [Orbit]$Parent
-    [Orbit[]]$Children
-    
+    [Orbit[]]$Children   
 }
 
 function Get-OrbitCount
@@ -28,7 +27,7 @@ function Get-OrbitCount
             $childOrbit.Name = $child
             $childOrbit.Parent = $curOrbit
             $curOrbit.Children += $childOrbit
-            if($child -eq "SAN")
+            if($child -eq "SAN") #prepping for part 2
             {
                 $script:SANTA = $childOrbit
             }
@@ -39,7 +38,6 @@ function Get-OrbitCount
             $count += (Get-OrbitCount -curOrbit $ChildOrbit -curDepth ($curDepth + 1))
         }
     }
-
     return $count + $curDepth
 } 
 
@@ -69,7 +67,7 @@ function Get-Distance
     {
         if($body1Path[$i] -ne $body2Path[$i])
         {
-            return ($body1Path.Length + $body2Path.Length - (2 * $i) - 2)
+            return ($body1Path.Length + $body2Path.Length - (2 * $i) - 2) #Subtract 2 to account for the fact that you and santa are both not oribits to transfer to or from
         }
     }
 }
@@ -86,7 +84,6 @@ function Get-PathToCenter
         $bodyPath += $parent.Name
         $parent = $parent.Parent
     }
-
     return $bodyPath
 }
 
