@@ -12,6 +12,8 @@ namespace IntCodeProcessor
         public Processor(long[] Program)
         {
             this.Program = Program.ToList();
+            long[] padding = new long[10000];
+            this.Program.AddRange(padding);
             Inputs = new Queue<long>();
         }
 
@@ -19,6 +21,7 @@ namespace IntCodeProcessor
         private List<long> WorkingProgram { get; set; }
         public Processor ProcessorToListenTo { get; set; }
         private Queue<long> Inputs { get; set; }
+        public int RelativeBase { get; set; } = 0;
 
         public event EventHandler<OutputEventArgs> ProgramOutput;
         public event EventHandler ProgramFinish;
@@ -60,7 +63,7 @@ namespace IntCodeProcessor
         {
             WorkingProgram = new List<long>(Program);
             int PC = 0;
-
+            RelativeBase = 0;
             while (true)
             {
                 long instruction = WorkingProgram[PC];
@@ -139,7 +142,10 @@ namespace IntCodeProcessor
                         }
                         PC += 4;
                         break;
-
+                    case Operation.RelativeBaseAdjust:
+                        RelativeBase += (int)opParams[0];
+                        PC += 2;
+                        break;
                     case Operation.HALT:
                         OnProgramFinish(new EventArgs());
                         return;
@@ -153,7 +159,7 @@ namespace IntCodeProcessor
         {
             long[] res;
             Mode[] modes = GetModes((int)(instruction / 100));
-            int immediate = -100;
+            long immediate = -100;
             switch (op)
             {
                 case Operation.Add:
@@ -169,11 +175,26 @@ namespace IntCodeProcessor
                             if (modes[i] == Mode.Position && i != 2) //If it's the output location, we still need teh "immediate" value
                             {
 
-                                res[i] = WorkingProgram[immediate];
+                                res[i] = WorkingProgram[(int)immediate];
+                            }
+                            else if (modes[i] == Mode.Relative)
+                            {
+                                if (i == 2)
+                                {
+                                    res[i] = (int)immediate + RelativeBase;
+                                }
+                                else
+                                {
+                                    res[i] = WorkingProgram[(int)immediate + RelativeBase];
+                                }
+                            }
+                            else if (modes[i] == Mode.Immediate || i == 2)
+                            {
+                                res[i] = immediate;
                             }
                             else
                             {
-                                res[i] = immediate;
+                                throw new Exception("Something broke");
                             }
                         }
                         catch (IndexOutOfRangeException e)
@@ -183,17 +204,22 @@ namespace IntCodeProcessor
                     }
                     break;
                 case Operation.WriteOutput:
+                case Operation.RelativeBaseAdjust:
                     res = new long[1]; //Let's just assume that any operation can take 3 params except reading input (must wait for input) and Halting
 
-                    immediate = (int)WorkingProgram[PC + 1];
+                    immediate = WorkingProgram[PC + 1];
                     if (modes[0] == Mode.Position)
                     {
 
-                        res[0] = WorkingProgram[immediate];
+                        res[0] = WorkingProgram[(int)immediate];
+                    }
+                    else if (modes[0] == Mode.Immediate)
+                    {
+                        res[0] = immediate;
                     }
                     else
                     {
-                        res[0] = immediate;
+                        res[0] = WorkingProgram[(int)immediate + RelativeBase];
                     }
 
                     break;
@@ -208,11 +234,15 @@ namespace IntCodeProcessor
                             if (modes[i] == Mode.Position)
                             {
 
-                                res[i] = WorkingProgram[immediate];
+                                res[i] = WorkingProgram[(int)immediate];
+                            }
+                            else if (modes[i] == Mode.Immediate)
+                            {
+                                res[i] = immediate;
                             }
                             else
                             {
-                                res[i] = immediate;
+                                res[i] = WorkingProgram[(int)immediate + RelativeBase];
                             }
                         }
                         catch (IndexOutOfRangeException e)
@@ -226,27 +256,35 @@ namespace IntCodeProcessor
                     res = new long[2];
                     while (Inputs.Count == 0) { }
                     res[0] = Inputs.Dequeue();
-                    res[1] = WorkingProgram[PC + 1]; //writes to ram, must be in position mode
+                    immediate = (int)WorkingProgram[PC + 1];
+                    if (modes[0] == Mode.Relative)
+                    {
+                        res[1] = (int)immediate + RelativeBase;
+                    }
+                    else
+                    {
+                        res[1] = immediate;
+                    }
                     break;
+
 
                 case Operation.HALT: return null;
                 default:
                     throw new Exception("Not a valid Opcode");
             }
-
             return res;
         }
 
         private Mode[] GetModes(int instruction)
         {
             var res = new Mode[3];
-            res[0] = (Mode)(instruction % 2);
+            res[0] = (Mode)(instruction % 10);
             instruction /= 10;
 
-            res[1] = (Mode)(instruction % 2);
+            res[1] = (Mode)(instruction % 10);
             instruction /= 10;
 
-            res[2] = (Mode)(instruction % 2);
+            res[2] = (Mode)(instruction % 10);
             instruction /= 10;
 
             return res;
@@ -263,13 +301,15 @@ namespace IntCodeProcessor
         JumpFalse = 6,
         LessThan = 7,
         TestEquals = 8,
+        RelativeBaseAdjust = 9,
         HALT = 99
     }
 
     enum Mode
     {
         Position = 0,
-        Immediate = 1
+        Immediate = 1,
+        Relative = 2
     }
     public class OutputEventArgs : EventArgs
     {
