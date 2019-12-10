@@ -24,6 +24,8 @@ $Inputpath = Join-Path $PSScriptRoot -ChildPath "$Year\input\day$("{0:00}" -f $D
 $InputURI = "https://adventofcode.com/$Year/day/$Day/input"
 $CodePath1 = Join-Path $PSScriptRoot -ChildPath "$Year\code\day$("{0:00}" -f $Day).ps1" #Pads a leading 0 if needed
 $CodePath2 = Join-Path $PSScriptRoot -ChildPath "$Year\code\day$("{0:00}" -f $Day)-2.ps1"
+$testInputPath = Join-Path $PSScriptRoot -ChildPath "$Year\input\day$("{0:00}" -f $Day)-test.txt" 
+
 
 if(!(Test-Path (Join-Path $PSScriptRoot -ChildPath "$Year\input"))) 
 {
@@ -44,7 +46,7 @@ if (!(Test-Path $InputPath) -and !($noDownload.IsPresent)) {
     $session.Cookies.Add($cookie);
     Invoke-WebRequest -Uri $InputURI -WebSession $session -TimeoutSec 900 -Method Get -OutFile $inputPath
 }
-
+New-Item $testInputPath -ItemType "file" -Value $basiclayout -Force | Out-Null
 #Repeating the JoinPath here so as not to expose file structure to the world in the rest of the repo
 $BasicLayout = @"
 `$data = Get-Content (Join-Path `$PSScriptRoot -ChildPath "..\input\day$("{0:00}" -f $Day).txt")
