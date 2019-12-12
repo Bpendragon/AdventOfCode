@@ -263,8 +263,21 @@ namespace IntCodeProcessor
 
                 case Operation.ReadInput:
                     res = new long[2];
-                    while (Inputs.Count == 0) { }
-                    res[0] = Inputs.Dequeue();
+                    int QL = 0;
+                    do
+                    {
+                        lock (Inputs)
+                        {
+                            QL = Inputs.Count;
+                        }
+                    } while (QL == 0);
+
+
+                    lock (Inputs)
+                    {
+                        res[0] = Inputs.Dequeue();
+                    }
+                    
                     immediate = (int)WorkingProgram[PC + 1];
                     if (modes[0] == Mode.Relative)
                     {
