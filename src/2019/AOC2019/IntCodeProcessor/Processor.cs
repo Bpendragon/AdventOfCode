@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using System.Threading;
 
 namespace IntCodeProcessor
 {
@@ -40,7 +41,15 @@ namespace IntCodeProcessor
 
         public void AddInput(long Input)
         {
-            Inputs.Enqueue(Input);
+            Monitor.Enter(Inputs);
+            try
+            {
+                Inputs.Enqueue(Input);
+            }
+            finally
+            {
+                Monitor.Exit(Inputs);
+            }
         }
 
         public void ResetInputs()
