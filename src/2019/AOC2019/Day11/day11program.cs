@@ -143,7 +143,7 @@ namespace Day11
                 {
                     cpu.AddInput(1);
                     part2 = false; //forces back to normal operation
-                    PaintedTiles["0,0"] = 0;
+                    PaintedTiles["0,0"] = 1;
                 }
                 else if (PaintedTiles.ContainsKey($"{x},{y}"))
                 {
@@ -170,9 +170,10 @@ namespace Day11
                 lock (outPutStream)
                 {
                     paintColor = outPutStream.Dequeue();
-                    PaintedTiles[$"{x},{y}"] = paintColor;
                     turnDir = outPutStream.Dequeue();
                 }
+
+                PaintedTiles[$"{x},{y}"] = paintColor;
 
                 if (turnDir == 0)
                 {
