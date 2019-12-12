@@ -49,16 +49,16 @@ namespace Day11
             int blackCount = 0;
             foreach (var t in bot.PaintedTiles.Keys)
             {
+                var s = t.Split(',');
+                int.TryParse(s[0], out int x);
+                int.TryParse(s[1], out int y);
+
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
                 if (bot.PaintedTiles[t] == 1)
                 {
-                    var s = t.Split(',');
-                    int.TryParse(s[0], out int x);
-                    int.TryParse(s[1], out int y);
-
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
                     if (!WhiteTiles.ContainsKey(y))
                     {
                         WhiteTiles[y] = new List<int>();
@@ -151,7 +151,6 @@ namespace Day11
                 }
                 else
                 {
-                    PaintedTiles[$"{x},{y}"] = 0;
                     cpu.AddInput(0);
                 }
 
